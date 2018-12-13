@@ -14,29 +14,29 @@ class CollectionViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.dataSource = CollectionViewDataSource(collectionView: self.collectionView, cells: [StringCell.self, DateCell.self, NumberCell.self])
-        let stringSection = SectionCollectionCell<StringCell, DataString>(items: Repository.stringItems, size: CGSize(width: 100, height: 100)) { item, intedPath in
+        self.dataSource = CollectionViewDataSource(collectionView: self.collectionView, cells: [StringCell.self, DateCell.self, NumberCell.self, ScrolableCell.self])
+        let stringSection = SectionCollectionCell<StringCell, DataString>(items: Repository.stringItems, numberOfColumn: 2) { item, intedPath in
             let alert = UIAlertController(title: "Item", message: item.text, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             self.navigationController?.present(alert, animated: true, completion: nil)
         }
-        let dateSection = SectionCollectionCell<DateCell, DataDate>(items: Repository.dateItems, size: CGSize(width: 300, height: 50))
-        let numberSection = SectionCollectionCell<NumberCell, DataNumber>(items: Repository.numberItems, size: CGSize(width: 70, height: 70))
-        
-        self.dataSource?.setSections([stringSection, dateSection, numberSection])
+        let dateSection = SectionCollectionCell<DateCell, DataDate>(items: Repository.dateItems, numberOfColumn: 2)
+        let numberSection = SectionCollectionCell<NumberCell, DataNumber>(items: Repository.numberItems, numberOfColumn: 3)
+        let scrollSection = SectionCollectionCell<ScrolableCell, Int >(items: [1], numberOfColumn: 1)
+        self.dataSource?.setSections([stringSection, dateSection, numberSection, scrollSection])
     }
 }
 
 class Repository {
     static var stringItems = [
-        DataString(text: "A"),
-        DataString(text: "B"),
-        DataString(text: "C"),
-        DataString(text: "D"),
+        DataString(text: "Afasfasf af asfsaf asfas fasf as fasf asfa fas fasf"),
+        DataString(text: "B asf afasfffasssssss"),
+        DataString(text: "C asfasfas"),
+        DataString(text: "Dasfasfasf safasfas"),
         DataString(text: "E"),
-        DataString(text: "F"),
+        DataString(text: "Ffsfasf asfasfasfsafasfasfasfassf"),
         DataString(text: "G"),
-        DataString(text: "H")
+        DataString(text: "Hggagsa  aas s")
     ]
     
     static var dateItems = [

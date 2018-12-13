@@ -16,28 +16,28 @@ protocol UpdatableCell {
 
 protocol SectionCellConfigurator {
     static var reuseId: String { get }
-    func configure(cell: UIView, index: Int)
+    func configure(cell: UIView, index: Int, collectionViewWidth: CGFloat)
     func numberOfItems()-> Int
     func onItemClick(indexPath: IndexPath)
-    func getCellSize()-> CGSize
 }
 
 typealias OnItemClick<T> = (_ item: T, _ indexPath: IndexPath)-> Void
 
 struct SectionCollectionCell<T: UpdatableCell, Item>: SectionCellConfigurator where T.AssociatedType == Item, T: UICollectionViewCell {
     static var reuseId: String { return T.reusableIdentifier() }
-    fileprivate let size: CGSize
     fileprivate let items: [Item]
+    fileprivate let numberOfColumn: Int
     fileprivate let didClickOnItem: OnItemClick<Item>?
     
-    init(items: [Item], size: CGSize, didClickOnItem: OnItemClick<Item>? = nil) {
+    init(items: [Item], numberOfColumn: Int? = 1, didClickOnItem: OnItemClick<Item>? = nil) {
         self.items = items
+        self.numberOfColumn = numberOfColumn!
         self.didClickOnItem = didClickOnItem
-        self.size = size
     }
     
-    func configure(cell: UIView, index: Int) {
+    func configure(cell: UIView, index: Int, collectionViewWidth: CGFloat) {
         (cell as! T).updateForViewFor(item: self.items[index])
+        cell.widthAnchor.constraint(equalToConstant: (collectionViewWidth - CGFloat(self.numberOfColumn * 10)) / CGFloat(self.numberOfColumn)).isActive = true
     }
     
     func onItemClick(indexPath: IndexPath) {
@@ -47,10 +47,6 @@ struct SectionCollectionCell<T: UpdatableCell, Item>: SectionCellConfigurator wh
     func numberOfItems() -> Int {
         return self.items.count
     }
-    
-    func getCellSize()-> CGSize {
-        return self.size
-    }
 }
 
 class CollectionViewDataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -58,6 +54,7 @@ class CollectionViewDataSource: NSObject, UICollectionViewDataSource, UICollecti
     
     init(collectionView: UICollectionView, cells: [UICollectionViewCell.Type]) {
         super.init()
+        (collectionView.collectionViewLayout as! UICollectionViewFlowLayout).estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         collectionView.dataSource = self
         collectionView.delegate = self
         cells.forEach { collectionView.register($0, forCellWithReuseIdentifier: $0.reusableIdentifier()) }
@@ -88,16 +85,12 @@ class CollectionViewDataSource: NSObject, UICollectionViewDataSource, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let configurator = self.sections[indexPath.section]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: type(of: configurator).reuseId, for: indexPath)
-        configurator.configure(cell: cell, index: indexPath.row)
+        configurator.configure(cell: cell, index: indexPath.row, collectionViewWidth: collectionView.collectionViewLayout.collectionViewContentSize.width)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         self.sections[indexPath.section].onItemClick(indexPath: indexPath)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return self.sections[indexPath.section].getCellSize()
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

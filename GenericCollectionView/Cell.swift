@@ -28,6 +28,7 @@ class StringCell: UICollectionViewCell {
         self.label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         self.label.textAlignment = .center
         self.label.textColor = .blue
+        self.label.numberOfLines = 0
         self.addSubview(self.label)
         
         self.addConstraint(NSLayoutConstraint(item: self.label, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 10))
@@ -100,7 +101,7 @@ class NumberCell: UICollectionViewCell {
     
     fileprivate func setup() {
         self.label.translatesAutoresizingMaskIntoConstraints = false
-        self.label.font = UIFont.systemFont(ofSize: 60, weight: .bold)
+        self.label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         self.label.textAlignment = .center
         self.label.textColor = .red
         self.addSubview(self.label)
